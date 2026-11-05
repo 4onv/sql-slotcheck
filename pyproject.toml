@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sql-slotcheck"
+version = "0.1.0"
+description = "Test whether a SQL connector preserves result values by column position."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [{name = "4onv"}]
+keywords = ["sql", "database", "sqlite", "testing", "db-api"]
+dependencies = []
+
+[project.scripts]
+sql-slotcheck = "sql_slotcheck.cli:main"
+
+[project.urls]
+Repository = "https://github.com/4onv/sql-slotcheck"
+Issues = "https://github.com/4onv/sql-slotcheck/issues"
+
+[tool.setuptools]
+packages = ["sql_slotcheck"]

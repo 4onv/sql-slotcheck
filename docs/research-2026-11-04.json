@@ -1,0 +1,180 @@
+{
+  "researchDate": "2026-11-04",
+  "timeZone": "America/Chicago",
+  "windowUTC": {
+    "startInclusive": "2026-11-04T06:00:00Z",
+    "endExclusive": "2026-11-05T06:00:00Z"
+  },
+  "researchedAtUTC": "2026-11-05 14:03:49 UTC",
+  "trendEvidence": [
+    {
+      "kind": "Original direct observation of GitHub daily Trending",
+      "observedAtUTC": "2026-11-04T17:14:16.2548486Z",
+      "url": "https://github.com/trending?since=daily",
+      "savedFile": "trending-2026-11-04.json",
+      "ranks": {
+        "NVIDIA/auto-ontology": 1,
+        "floci-io/floci": 4,
+        "github/spec-kit": 7,
+        "The-PR-Agent/pr-agent": 8
+      },
+      "meaning": "One rolling snapshot recorded during the research day. The GitHub URL now serves a different live list. These are rankings and do not measure daily star changes."
+    },
+    {
+      "kind": "Third-party community archive of an earlier snapshot",
+      "sha": "3df84b348a7366ff4e714d7ea3ebe520b510fcb4",
+      "at": "2026-11-04T08:42:56Z",
+      "url": "https://github.com/JackEasons/github-trending/blob/3df84b348a7366ff4e714d7ea3ebe520b510fcb4/2026/2026-11-04.md",
+      "ranks": {
+        "floci-io/floci": 8
+      },
+      "cumulativeStarsAtCapture": {
+        "floci-io/floci": 29112
+      },
+      "meaning": "The earlier general list did not include NVIDIA/auto-ontology. Rank variation across captures is expected. The recorded star total is cumulative."
+    }
+  ],
+  "primaryEvents": [
+    {
+      "at": "2026-11-04T06:02:36Z",
+      "type": "issue opened",
+      "url": "https://github.com/NVIDIA/auto-ontology/issues/408",
+      "observation": "The reporter reproduced loss of distinct ordinal values after adapters handled duplicate result labels in PostgreSQL, MySQL and SQLite. DuckDB returned disambiguated labels with all values preserved in the reporter's comparison. The PostgreSQL adapter also lost column metadata for empty results. The report includes a SQLite reproduction and notes that downstream label deduplication happened after the data was lost.",
+      "attribution": "These vendor-specific observations belong to the upstream reporter. Reading upstream source confirms the name-keyed conversion paths, not independent end-to-end reproduction in all three engines."
+    },
+    {
+      "at": "2026-11-04T21:32:57Z",
+      "type": "commit",
+      "url": "https://github.com/floci-io/floci/commit/6e16b80281013b11066231cac5387ce4aad25f22",
+      "observation": "Floci corrected pagination for EFS access points and resource tags."
+    },
+    {
+      "at": "2026-11-05T02:34:06Z",
+      "type": "commit",
+      "url": "https://github.com/floci-io/floci/commit/31227106b1a3f6d6e77c8d3747c43f03966edd1e",
+      "observation": "Floci corrected ELBv2 response omission, including terminal pagination markers. The UTC timestamp is in the Nov4 Chicago window."
+    },
+    {
+      "at": "2026-11-04T22:55:44Z",
+      "type": "commit",
+      "url": "https://github.com/The-PR-Agent/pr-agent/commit/d8fcf7772cd531a36bdabebf145b819949d111ce",
+      "observation": "PR-Agent corrected Git physical line boundary handling in supplied diffs."
+    },
+    {
+      "at": "2026-11-04T22:55:29Z",
+      "type": "commit",
+      "url": "https://github.com/The-PR-Agent/pr-agent/commit/d92765fc0e5bb2488b153947ef63e0da29fcffcc",
+      "observation": "PR-Agent corrected physical-line handling in Azure suggestion ranges and reconciliation."
+    }
+  ],
+  "earlierContext": [
+    {
+      "at": "2026-11-01T11:17:25Z",
+      "type": "PR merged",
+      "url": "https://github.com/NVIDIA/auto-ontology/pull/397",
+      "observation": "Earlier downstream label deduplication is related context. Issue 408 says that path could receive data already collapsed by the connector."
+    }
+  ],
+  "pinnedCode": [
+    {
+      "note": "PostgreSQL uses dict_row before DataFrame construction",
+      "url": "https://github.com/NVIDIA/auto-ontology/blob/caced11e69e19663dfa0f73778dbecbcb71e87a0/auto_ontology/connectors/postgres.py#L25-L30"
+    },
+    {
+      "note": "MySQL requests a dictionary cursor before DataFrame construction",
+      "url": "https://github.com/NVIDIA/auto-ontology/blob/caced11e69e19663dfa0f73778dbecbcb71e87a0/auto_ontology/connectors/mysql.py#L134-L144"
+    },
+    {
+      "note": "SQLite converts rows to dictionaries while reusing cursor labels",
+      "url": "https://github.com/NVIDIA/auto-ontology/blob/caced11e69e19663dfa0f73778dbecbcb71e87a0/auto_ontology/connectors/sqlite.py#L134-L136"
+    }
+  ],
+  "candidates": [
+    {
+      "rank": 1,
+      "name": "SQL connector projection canaries",
+      "decision": "Recommend",
+      "demand": "A concrete reproducible defect report across three connectors in the top observed repository. Tests on an already-constructed dataframe can miss corruption during row construction.",
+      "value": "Run a small synthetic set of constant SELECT statements through an application adapter; compare the returned ordered labels and row values with expected canary ordinals. Include deliberately different values under a repeated label, a NULL and a zero-row result. Distinguish a successful rename from value loss.",
+      "demo": "Python stdlib SQLite in memory. Demonstrate the same query through an ordinal-preserving adapter and a deliberately lossy name-keyed adapter. Label the generated inputs and implementation clearly.",
+      "discoverability": "Queries such as 'SQLite duplicate column labels', 'SQL connector returns wrong values', 'DB-API cursor.description' give the project a direct explanation and concrete audience: connector authors, data tooling and text-to-SQL teams.",
+      "limitations": "A small fixture set does not certify database support or diagnose the exact transformation responsible. Inference about practical demand is based on one upstream report and observed trend rank."
+    },
+    {
+      "rank": 2,
+      "name": "Review-comment anchor preflight",
+      "decision": "Reject for this run",
+      "demand": "Two dated PR-Agent fixes show real errors caused by diff line boundaries and suggestion coordinates.",
+      "value": "Validate proposed line, side and range comments against a saved Git patch before publication. Reviewdog and github-comment-cli already provide substantial overlap.",
+      "demo": "One generated diff with a valid added-line comment, stale/wrong-side anchors and unusual path/line characters.",
+      "discoverability": "Review bot and CI audiences are identifiable but existing tools already handle key parts of the workflow."
+    },
+    {
+      "rank": 3,
+      "name": "API pagination transcript validator",
+      "decision": "Reject for this run",
+      "demand": "Dated Floci fixes show concrete pagination edge cases, and Floci ranked fourth in the directly observed snapshot.",
+      "value": "Recorded cursor continuity, cycle detection and duplicate-record evidence have a near exact implementation in PageTrace. Its published documentation also covers incomplete capture and multiple pagination modes.",
+      "demo": "A short synthetic request/response transcript is easy to understand and run offline.",
+      "discoverability": "Search intent is clear, but PageTrace already demonstrates this pitch."
+    }
+  ],
+  "alternatives": [
+    {
+      "name": "SQLFluff AL08",
+      "url": "https://docs.sqlfluff.com/en/3.3.0/reference/rules.html#rule-aliasing-unique-column",
+      "role": "Static SQL lint rule for duplicate column aliases. It can help authors make a query unambiguous; a connector probe observes what the application returns for a deliberately ambiguous projection."
+    },
+    {
+      "name": "SQLAlchemy",
+      "url": "https://docs.sqlalchemy.org/en/21/changelog/migration_14.html#select-objects-and-derived-from-clauses-allow-for-duplicate-columns-and-column-labels",
+      "role": "Its Core result tuples support duplicate columns/labels and retain select ordering. The proposed canary suite tests what happens after callers convert such results at an adapter boundary."
+    },
+    {
+      "name": "Pandera",
+      "url": "https://pandera.readthedocs.io/en/stable/dataframe_schemas.html",
+      "role": "Schema validation supports column order, duplicate-name and data checks. Custom expectations can be expressed in Pandera; packaged adapter-facing synthetic probes provide the proposed convenience."
+    },
+    {
+      "name": "dbapi-compliance",
+      "url": "https://pypi.org/project/dbapi-compliance/",
+      "role": "Tests conformity of Python database drivers to the DB-API. The proposed scope is the application connector/serializer after the driver."
+    },
+    {
+      "name": "ADBC driver validation",
+      "url": "https://github.com/adbc-drivers/validation",
+      "role": "Runs a much broader driver feature and data-type suite for ADBC drivers."
+    },
+    {
+      "name": "sqllogictest",
+      "url": "https://www.sqlite.org/sqllogictest/doc/trunk/about.wiki",
+      "role": "Compares database-engine query values against expected results in test scripts. Its record label identifies queries, unlike SQL result-column labels. An adapter-specific harness could also be built on it."
+    },
+    {
+      "name": "PageTrace",
+      "url": "https://pypi.org/project/pagetrace/",
+      "role": "A direct alternative for a pagination transcript validator; covers token continuity, repeated states, duplicate items, partial capture, HAR and JSONL."
+    },
+    {
+      "name": "reviewdog",
+      "url": "https://github.com/reviewdog/reviewdog",
+      "role": "Filters lint findings against patches and supports review comments or check annotations."
+    },
+    {
+      "name": "github-comment-cli",
+      "url": "https://github.com/aaronS7/github-comment-cli",
+      "role": "Validates GitHub inline review targets before posting."
+    }
+  ],
+  "implementationReferences": [
+    {
+      "url": "https://peps.python.org/pep-0249/#description",
+      "note": "Cursor.description is a sequence describing result columns. fetchone/fetchall return sequences of values."
+    },
+    {
+      "url": "https://docs.python.org/3/library/sqlite3.html#sqlite3.Cursor.description",
+      "note": "sqlite3 exposes description for SELECT even when no rows match."
+    }
+  ],
+  "boundaries": "Use original fixture queries and implementation. Never infer previous-day star gains from ranks or cumulative totals. The side-by-side competitor review is selective, not exhaustive. The portfolio observation and today's rolling snapshot are captured separately by the parent run."
+}
